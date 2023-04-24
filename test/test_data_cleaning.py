@@ -5,6 +5,7 @@ from data_cleaning import check_numerical
 from data_cleaning import check_missingvalues
 from data_cleaning import del_na
 from data_cleaning import fill_na
+
 df_train = pd.read_csv("/home/hoangthanh/Desktop/house_price_prediction/data/train.csv")
 
 def test_check_category():
