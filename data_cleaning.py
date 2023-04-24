@@ -36,5 +36,13 @@ def check_missingvalues(data):
 ls_count = check_missingvalues(df_train)
 print(ls_count)
 
+def del_na(data,column):
+    ls_values1 = [x for x in data[column]]
+    ls_values = [x for x in ls_values1 if (math.isnan(x) != True)]
+    return ls_values
+
+def fill_na(data,column,numb): 
+    fill_na_values = data[column].fillna(numb)
+    return fill_na_values
 
 
