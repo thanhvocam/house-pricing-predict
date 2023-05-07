@@ -13,7 +13,7 @@ import seaborn as sns
 train = pd.read_csv("/home/hoangthanh/Desktop/house_price_prediction/data/train.csv")
 train = train[train.GrLivArea < 4000]
 
-train.SalePrice = np.log1p(train.SalePrice)
+# train.SalePrice = np.log1p(train.SalePrice)
 y = train.SalePrice
 
 # Handle missing values for features where median/mean or most common value doesn't make sense
@@ -280,6 +280,8 @@ train["GarageScore-Sq"] = np.sqrt(train["GarageScore"])
 categorical_features = train.select_dtypes(include = ["object"]).columns
 numerical_features = train.select_dtypes(exclude = ["object"]).columns
 numerical_features = numerical_features.drop("SalePrice")
+print(categorical_features)
+print(numerical_features)
 print("Numerical features : " + str(len(numerical_features)))
 print("Categorical features : " + str(len(categorical_features)))
 train_num = train[numerical_features]
@@ -293,11 +295,11 @@ print("Remaining NAs for numerical features in train : " + str(train_num.isnull(
 # Log transform of the skewed numerical features to lessen impact of outliers
 # Inspired by Alexandru Papiu's script : https://www.kaggle.com/apapiu/house-prices-advanced-regression-techniques/regularized-linear-models
 # As a general rule of thumb, a skewness with an absolute value > 0.5 is considered at least moderately skewed
-skewness = train_num.apply(lambda x: skew(x))
-skewness = skewness[abs(skewness) > 0.5]
-print(str(skewness.shape[0]) + " skewed numerical features to log transform")
-skewed_features = skewness.index
-train_num[skewed_features] = np.log1p(train_num[skewed_features])
+# skewness = train_num.apply(lambda x: skew(x))
+# skewness = skewness[abs(skewness) > 0.5]
+# print(str(skewness.shape[0]) + " skewed numerical features to log transform")
+# skewed_features = skewness.index
+# train_num[skewed_features] = np.log1p(train_num[skewed_features])
 
 # Create dummy features for categorical values via one-hot encoding
 print("NAs for categorical features in train : " + str(train_cat.isnull().values.sum()))
@@ -320,43 +322,21 @@ stdSc = StandardScaler()
 X_train.loc[:, numerical_features] = stdSc.fit_transform(X_train.loc[:, numerical_features])
 X_test.loc[:, numerical_features] = stdSc.transform(X_test.loc[:, numerical_features])
 
-# Define error measure for official scoring : RMSE
-scorer = make_scorer(mean_squared_error, greater_is_better = False)
-
-def rmse_cv_train(model):
-    rmse= np.sqrt(-cross_val_score(model, X_train, y_train, scoring = scorer, cv = 10))
-    return(rmse)
-
-def rmse_cv_test(model):
-    rmse= np.sqrt(-cross_val_score(model, X_test, y_test, scoring = scorer, cv = 10))
-    return(rmse)
-
 # Linear Regression
 lr = LinearRegression()
 lr.fit(X_train, y_train)
 
-# Look at predictions on training and validation set
-print("RMSE on Training set :", rmse_cv_train(lr).mean())
-print("RMSE on Test set :", rmse_cv_test(lr).mean())
+# Define error measure for official scoring : RMSE
 y_train_pred = lr.predict(X_train)
 y_test_pred = lr.predict(X_test)
 
-# Plot residuals
-plt.scatter(y_train_pred, y_train_pred - y_train, c = "blue", marker = "s", label = "Training data")
-plt.scatter(y_test_pred, y_test_pred - y_test, c = "lightgreen", marker = "s", label = "Validation data")
-plt.title("Linear regression")
-plt.xlabel("Predicted values")
-plt.ylabel("Residuals")
-plt.legend(loc = "upper left")
-plt.hlines(y = 0, xmin = 10.5, xmax = 13.5, color = "red")
-plt.show()
+def compute_rmse(y_pred,y):
+    rmse = np.sqrt(sum((y_pred - y)**2/len(y)))
+    return rmse
 
-# Plot predictions
-plt.scatter(y_train_pred, y_train, c = "blue", marker = "s", label = "Training data")
-plt.scatter(y_test_pred, y_test, c = "lightgreen", marker = "s", label = "Validation data")
-plt.title("Linear regression")
-plt.xlabel("Predicted values")
-plt.ylabel("Real values")
-plt.legend(loc = "upper left")
-plt.plot([10.5, 13.5], [10.5, 13.5], c = "red")
-plt.show()
+
+
+rmse_train_model = compute_rmse(y_train_pred,y_train).mean()
+print("rmse_train_model_value:", rmse_train_model)
+rmse_test_model = compute_rmse(y_test_pred, y_test).mean()
+print("rmse_test_model_value:", rmse_test_model)
