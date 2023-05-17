@@ -1,13 +1,12 @@
 import pandas as pd
-import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
-from functions import fill_data, replace_data, compute_corr, find_cat_variable, find_num_variable, find_num_variable2, compute_rmse, fill_test_columns, fill_train_columns, fill_test_row
+from functions import fill_data, replace_data, compute_corr, find_cat_variable, find_num_variable, fill_test_columns, fill_train_columns
 
 
 train = pd.read_csv("/home/hoangthanh/Desktop/house_price_prediction/data/train.csv")
 test = pd.read_csv("/home/hoangthanh/Desktop/house_price_prediction/data/test.csv")
+Id_pred = pd.Series(test.Id)
 
 train.drop("Id", axis = 1, inplace = True)
 test.drop("Id", axis = 1, inplace = True)
@@ -31,9 +30,11 @@ print(correlation)
 # Differentiate numerical features (minus the target) and categorical features
 numerical_features = find_num_variable(df_train)
 categorical_features = find_cat_variable(df_train)
+numerical_features = numerical_features.drop("SalePrice")
 df_train_num = df_train[numerical_features]
 df_train_cat = df_train[categorical_features]
-numerical_features1 = find_num_variable2(df_test)
+
+numerical_features1 = find_num_variable(df_test)
 categorical_features1 = find_cat_variable(df_test)
 df_test_num = df_test[numerical_features1]
 df_test_cat = df_test[categorical_features1]
@@ -60,7 +61,6 @@ df_test = pd.concat([df_test_num, df_test_cat], axis = 1)
 #TODO: Reorder the columns of df_train, df_test so that the order of columns in these 2 df is the same.
 train_columns = sorted(df_train.columns)
 test_columns = sorted(df_test.columns)
-assert train_columns == test_columns
 df_train = df_train[train_columns]
 df_test = df_test[test_columns]
 
@@ -76,7 +76,12 @@ print("y_test : " + str(y_test.shape))
 lr = LinearRegression()
 lr.fit(X_train, y_train)
 
-# Define error measure for official scoring : RMSE
+# Sale Price Predict:
 
 y_test_pred = lr.predict(df_test)
 
+data_pred = pd.DataFrame(columns=["Id", "SalePrice"])
+
+data_pred["Id"] =  Id_pred
+data_pred["SalePrice"] = pd.Series(y_test_pred)
+data_pred[['Id', 'SalePrice']].to_csv('my_data.csv', index=False)

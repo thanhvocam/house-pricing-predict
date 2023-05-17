@@ -24,6 +24,7 @@ correlation = compute_corr(df_train)
 # Differentiate numerical features (minus the target) and categorical features
 numerical_features = find_num_variable(df_train)
 categorical_features = find_cat_variable(df_train)
+numerical_features = numerical_features.drop("SalePrice")
 df_train_num = df_train[numerical_features]
 df_train_cat = df_train[categorical_features]
 
@@ -58,6 +59,7 @@ rmse_train_model = compute_rmse(y_train_pred,y_train)
 print("rmse_train_model_value:", rmse_train_model)
 rmse_test_model = compute_rmse(y_test_pred, y_test)
 print("rmse_test_model_value:", rmse_test_model)
+
 
 # Plot predictions
 plt.scatter(y_train_pred, y_train, c = "blue", marker = "s", label = "Training data")

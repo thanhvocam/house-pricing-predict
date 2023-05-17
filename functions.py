@@ -1,5 +1,3 @@
-import pandas as pd
-import numpy as np
 import math
 
 def fill_data(data):
@@ -160,11 +158,6 @@ def find_cat_variable(data):
 
 def find_num_variable(data):
     numerical_features = data.select_dtypes(exclude = ["object"]).columns
-    numerical_features = numerical_features.drop("SalePrice")
-    return numerical_features
-
-def find_num_variable2(data):
-    numerical_features = data.select_dtypes(exclude = ["object"]).columns
     return numerical_features
 
 def compute_corr(data):
@@ -202,9 +195,6 @@ def fill_train_columns(data):
         data.loc[i, 'MSSubClass_SC150'] = new_data[i]
     return data
 
-def fill_test_row(data):
-    data.loc[1460] = [0] * 274
-    return data
 
 
 
