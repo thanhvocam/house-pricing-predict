@@ -8,10 +8,10 @@ from functions import fill_data, replace_data, compute_corr, find_cat_variable, 
 
 train = pd.read_csv("/home/hoangthanh/Desktop/house_price_prediction/data/train.csv")
 test = pd.read_csv("/home/hoangthanh/Desktop/house_price_prediction/data/test.csv")
-test = fill_test_row(test)
 
 train.drop("Id", axis = 1, inplace = True)
 test.drop("Id", axis = 1, inplace = True)
+
 
 
 # Handle missing values for features where median/mean or most common value doesn't make sense
@@ -57,6 +57,12 @@ df_train_cat = fill_train_columns(df_train_cat)
 df_train = pd.concat([df_train_num, df_train_cat], axis = 1)
 df_test = pd.concat([df_test_num, df_test_cat], axis = 1)
 
+#TODO: Reorder the columns of df_train, df_test so that the order of columns in these 2 df is the same.
+train_columns = sorted(df_train.columns)
+test_columns = sorted(df_test.columns)
+assert train_columns == test_columns
+df_train = df_train[train_columns]
+df_test = df_test[test_columns]
 
 # Partition the dataset in train + validation sets
 X_train, X_test, y_train, y_test = train_test_split(df_train, y, test_size = 0.3, random_state = 0)
@@ -65,23 +71,12 @@ print("X_test : " + str(X_test.shape))
 print("y_train : " + str(y_train.shape))
 print("y_test : " + str(y_test.shape))
 
-X_train1, X_test1, y_train1, y_test1 = train_test_split(df_test, y, test_size = 0.3, random_state = 0)
-print("X_train1 : " + str(X_train1.shape))
-print("X_test1 : " + str(X_test1.shape))
-print("y_train1 : " + str(y_train1.shape))
-print("y_test1 : " + str(y_test1.shape))
-
 
 # Linear Regression
 lr = LinearRegression()
 lr.fit(X_train, y_train)
 
 # Define error measure for official scoring : RMSE
-y_train_pred = lr.predict(X_train)
-y_test_pred = lr.predict(X_test)
 
+y_test_pred = lr.predict(df_test)
 
-rmse_train_model = compute_rmse(y_train_pred,y_train)
-print("rmse_train_model_value:", rmse_train_model)
-rmse_test_model = compute_rmse(y_test_pred, y_test)
-print("rmse_test_model_value:", rmse_test_model)

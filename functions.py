@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import math
 
 def fill_data(data):
@@ -202,9 +203,10 @@ def fill_train_columns(data):
     return data
 
 def fill_test_row(data):
-    new_row = pd.Series([0]*274)
-    data = data.append(new_row, ignore_index = True)
+    data.loc[1460] = [0] * 274
     return data
+
+
 
         
 
